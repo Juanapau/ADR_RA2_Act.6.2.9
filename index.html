@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad 6.2.9 — Reportes con Gráficos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rojo: #C0152A;
+  --rojo-dark: #8B0F1E;
+  --negro: #0C0C0C;
+  --gris1: #161616;
+  --gris2: #1E1E1E;
+  --gris3: #2A2A2A;
+  --gris4: #404040;
+  --blanco: #F2EEE8;
+  --texto: #B8B4AC;
+  --acento: #E8C14B;
+  --verde: #27AE60;
+  --radio: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--negro);
+  color: var(--blanco);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── BARRA PROGRESO ── */
+.prog-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--gris3); z-index: 999; }
+#progBar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--rojo-dark), var(--rojo), var(--acento)); transition: width .4s ease; }
+
+/* ── PUNTOS NAV ── */
+.steps-nav { position: fixed; right: 16px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+.ndot { width: 8px; height: 8px; border-radius: 50%; background: var(--gris4); cursor: pointer; transition: all .2s; }
+.ndot.active { background: var(--rojo); transform: scale(1.4); }
+.ndot.done { background: var(--verde); }
+
+/* ── HEADER ── */
+.page-header {
+  background: var(--rojo-dark);
+  border-bottom: 3px solid var(--rojo);
+  padding: 44px 52px 36px;
+}
+.eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 12px;
+}
+.page-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+.page-header .subtitle {
+  margin-top: 10px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 300;
+}
+
+/* ── WRAPPER ── */
+.wrap { max-width: 780px; margin: 0 auto; padding: 44px 24px 90px; }
+
+/* ── TARJETA ESTUDIANTE ── */
+.student-card {
+  background: var(--gris1);
+  border: 1px solid var(--gris3);
+  border-left: 4px solid var(--rojo);
+  border-radius: var(--radio);
+  padding: 28px 32px;
+  margin-bottom: 32px;
+}
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 20px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-full { grid-column: 1 / -1; }
+.form-group label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  background: var(--negro);
+  border: 1px solid var(--gris3);
+  border-radius: 5px;
+  color: var(--blanco);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-group input:focus { border-color: var(--rojo); }
+
+/* ── OBJETIVO ── */
+.obj-box {
+  background: #120306;
+  border: 1px solid rgba(192,21,42,0.4);
+  border-radius: var(--radio);
+  padding: 22px 26px;
+  margin-bottom: 32px;
+  font-size: 14px;
+  color: var(--texto);
+  line-height: 1.7;
+}
+.obj-box strong {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--rojo);
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ── INFO BD ── */
+.db-box {
+  background: var(--gris1);
+  border: 1px solid var(--gris3);
+  border-radius: var(--radio);
+  padding: 22px 26px;
+  margin-bottom: 32px;
+}
+.db-box .box-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 16px;
+}
+.db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.db-pill {
+  background: var(--negro);
+  border: 1px solid var(--gris3);
+  border-radius: 5px;
+  padding: 10px 13px;
+}
+.db-pill .pill-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--blanco);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.db-pill .pill-fields {
+  font-size: 11px;
+  color: #454545;
+  line-height: 1.5;
+}
+
+/* ── DIVISOR ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.divider span {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #404040;
+  white-space: nowrap;
+}
+.divider::after { content: ''; flex: 1; height: 1px; background: var(--gris3); }
+
+/* ── PASO ── */
+.step {
+  background: var(--gris1);
+  border: 1px solid var(--gris3);
+  border-radius: var(--radio);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color .25s;
+}
+.step.completed { border-color: rgba(39,174,96,0.4); }
+
+.step-hdr {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 0;
+}
+.step-num {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--gris4);
+  padding: 20px 0;
+  border-right: 1px solid var(--gris3);
+  transition: color .2s;
+}
+.step.completed .step-num { color: var(--verde); }
+
+.step-hdr-text { flex: 1; padding: 18px 20px; }
+.step-cat {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--rojo);
+  margin-bottom: 4px;
+}
+.step-ttl {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--blanco);
+  line-height: 1.2;
+}
+
+.step-arrow {
+  width: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--gris4);
+  transition: transform .3s;
+}
+.step.open .step-arrow { transform: rotate(180deg); }
+
+/* ── CUERPO DEL PASO ── */
+.step-body {
+  display: none;
+  border-top: 1px solid var(--gris3);
+  padding: 30px 32px;
+}
+.step.open .step-body { display: block; }
+
+/* ── INSTRUCCIÓN: número + texto lineal ── */
+.inst-block {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+.inst-block:last-of-type { margin-bottom: 0; }
+
+.inst-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--rojo);
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.inst-text {
+  flex: 1;
+  font-size: 14.5px;
+  color: var(--texto);
+  line-height: 1.75;
+}
+.inst-text strong { color: var(--blanco); font-weight: 500; }
+.inst-text b { color: var(--blanco); font-weight: 600; }
+.inst-text code {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--acento);
+  background: rgba(232,193,75,0.08);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+/* ── RECUADRO NOTA ── */
+.note {
+  background: rgba(232,193,75,0.05);
+  border-left: 3px solid var(--acento);
+  border-radius: 0 4px 4px 0;
+  padding: 12px 16px;
+  margin: 20px 0;
+  font-size: 13.5px;
+  color: var(--texto);
+  line-height: 1.65;
+}
+.note strong { color: var(--acento); font-weight: 500; }
+
+/* ── RECUADRO ALERTA ── */
+.warn {
+  background: rgba(192,21,42,0.06);
+  border-left: 3px solid var(--rojo);
+  border-radius: 0 4px 4px 0;
+  padding: 12px 16px;
+  margin: 20px 0;
+  font-size: 13.5px;
+  color: var(--texto);
+  line-height: 1.65;
+}
+.warn strong { color: #e05060; font-weight: 500; }
+
+/* ── TABLA RESULTADO ── */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 18px 0;
+}
+.result-table th {
+  background: var(--negro);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #555;
+  padding: 9px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--gris3);
+}
+.result-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--gris2);
+  color: var(--texto);
+}
+.result-table tr:last-child td { border-bottom: none; }
+.result-table td.r { text-align: right; font-family: 'DM Mono', monospace; }
+
+/* ── SEPARADOR ENTRE GRUPOS ── */
+.inst-sep {
+  height: 1px;
+  background: var(--gris3);
+  margin: 26px 0;
+}
+
+/* ── BOTÓN COMPLETADO ── */
+.step-footer {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gris3);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.done-btn {
+  background: var(--rojo);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 22px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s;
+}
+.done-btn:hover { background: var(--rojo-dark); }
+.done-btn.done { background: var(--verde); pointer-events: none; }
+.done-lbl { font-size: 12px; color: #555; }
+
+/* ── SECCIÓN DESCARGA ── */
+.dl-section {
+  margin-top: 48px;
+  background: #120205;
+  border: 1px solid var(--rojo);
+  border-radius: var(--radio);
+  padding: 36px;
+  text-align: center;
+}
+.dl-section h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.dl-section p { font-size: 14px; color: var(--texto); margin-bottom: 24px; }
+.stats-row { display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.stat-box {
+  background: var(--negro);
+  border: 1px solid var(--gris3);
+  border-radius: 6px;
+  padding: 14px 24px;
+  min-width: 120px;
+}
+.stat-box .n {
+  font-family: 'Syne', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--rojo);
+  display: block;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-box .lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #444;
+}
+#dlBtn {
+  background: var(--rojo);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 40px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+#dlBtn:hover { background: var(--rojo-dark); transform: translateY(-1px); }
+
+/* ── PRINT ── */
+@media print {
+  body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+  .prog-wrap, .steps-nav, .done-btn, #dlBtn, .dl-section { display: none !important; }
+  .page-header { background: #8B0F1E !important; padding: 20px 28px 18px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page-header h1 { font-size: 20pt !important; color: #fff !important; }
+  .page-header .subtitle, .eyebrow { color: rgba(255,255,255,0.7) !important; }
+  .step { border: 1px solid #ddd !important; break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+  .step-body { display: block !important; background: #fff !important; padding: 20px 24px !important; }
+  .step-hdr { background: #f5f5f5 !important; }
+  .step-num { color: #555 !important; border-right: 1px solid #ddd !important; }
+  .step.completed .step-num { color: #27AE60 !important; }
+  .step-ttl { color: #111 !important; }
+  .step-cat { color: #C0152A !important; }
+  .step-arrow { display: none !important; }
+  .inst-num { background: #C0152A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .inst-text { color: #333 !important; }
+  .inst-text strong, .inst-text b { color: #000 !important; }
+  .inst-text code { color: #8B0F1E !important; background: #f5f0e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .note { background: #fdf8ec !important; border-color: #E8C14B !important; color: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .warn { background: #fef2f3 !important; border-color: #C0152A !important; color: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .note strong { color: #a0800a !important; }
+  .warn strong { color: #C0152A !important; }
+  .result-table th { background: #f0f0f0 !important; color: #555 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result-table td { color: #333 !important; }
+  .student-card, .obj-box, .db-box { background: #fff !important; border-color: #ddd !important; }
+  .db-pill { background: #f9f9f9 !important; border-color: #ddd !important; }
+  .db-pill .pill-name { color: #111 !important; }
+  .db-pill .pill-fields { color: #888 !important; }
+  .wrap { padding: 12px !important; max-width: 100% !important; }
+  .inst-sep { background: #e5e5e5 !important; }
+}
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-full { grid-column: 1; }
+  .page-header { padding: 28px 20px 24px; }
+  .wrap { padding: 24px 16px 70px; }
+  .step-body { padding: 22px 18px; }
+  .steps-nav { display: none; }
+  .stats-row { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="prog-wrap"><div id="progBar"></div></div>
+<div class="steps-nav" id="stepsNav"></div>
+
+<!-- ENCABEZADO -->
+<header class="page-header">
+  <div class="eyebrow">Microsoft Access 365 · Actividad Práctica</div>
+  <h1>Actividad 6.2.9<br>Reportes con Gráficos</h1>
+  <p class="subtitle">Módulo Análisis y Diseño de Reportes</p>
+</header>
+
+<div class="wrap">
+
+  <!-- DATOS DEL ESTUDIANTE -->
+  <div class="student-card">
+    <div class="card-label">Datos del Estudiante</div>
+    <div class="form-grid">
+      <div class="form-group form-full">
+        <label for="nomEst">Nombre completo</label>
+        <input type="text" id="nomEst" placeholder="Escribe tu nombre completo">
+      </div>
+      <div class="form-group">
+        <label for="fechaAct">Fecha de realización</label>
+        <input type="date" id="fechaAct">
+      </div>
+      <div class="form-group">
+        <label for="seccion">Sección / Grado</label>
+        <input type="text" id="seccion" placeholder="Ej: 3ro B — Informática">
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJETIVO -->
+  <div class="obj-box">
+    <strong>Objetivo de la Actividad</strong>
+    Crear una consulta que agrupe las ventas por mes usando el modo Diseño gráfico de Access, generar un reporte con un gráfico de columnas verticales correctamente configurado, complementarlo con una tabla de datos y garantizar que el reporte se actualice automáticamente cuando se registren nuevas ventas.
+  </div>
+
+  <!-- BASE DE DATOS -->
+  <div class="db-box">
+    <div class="box-label">Base de Datos: Sist_Gestión_de_Ventas_Ejercicios</div>
+    <div class="db-grid">
+      <div class="db-pill">
+        <div class="pill-name">Ventas</div>
+        <div class="pill-fields">ID_Venta · Fecha · ID_Cliente · Total · Metodo_Pago</div>
+      </div>
+      <div class="db-pill">
+        <div class="pill-name">Detalle_Ventas</div>
+        <div class="pill-fields">ID_Detalle · ID_Venta · ID_Producto · Cantidad · Subtotal</div>
+      </div>
+      <div class="db-pill">
+        <div class="pill-name">Productos</div>
+        <div class="pill-fields">ID_Producto · Nombre · Precio · Stock · Categoria</div>
+      </div>
+      <div class="db-pill">
+        <div class="pill-name">Clientes</div>
+        <div class="pill-fields">ID_Cliente · Nombre · Apellido · Email · Telefono</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><span>Paso a paso</span></div>
+
+  <!-- PASO 1 -->
+  <div class="step" id="step1">
+    <div class="step-hdr" onclick="toggle(1)">
+      <div class="step-num">1</div>
+      <div class="step-hdr-text">
+        <div class="step-cat">Consulta · Modo Diseño</div>
+        <div class="step-ttl">Crear la consulta de ventas agrupadas por mes</div>
+      </div>
+      <div class="step-arrow">▾</div>
+    </div>
+    <div class="step-body">
+      <div class="inst-block">
+        <div class="inst-num">1</div>
+        <div class="inst-text">Ve a <b>Crear → Diseño de consulta</b>. En el cuadro que aparece, selecciona la tabla <b>Ventas</b>, clic en <b>Agregar</b> y luego <b>Cerrar</b>.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">2</div>
+        <div class="inst-text">En la pestaña <b>Diseño</b>, haz clic en el botón <b>Totales</b> (símbolo Σ). Aparecerá una nueva fila llamada <b>Total</b> en la cuadrícula.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">3</div>
+        <div class="inst-text">Agrega los siguientes campos en la cuadrícula, uno por columna:<br><br>
+          <b>Columna 1 —</b> Campo: <code>MesAño: Format([Fecha];"mmmm aaaa")</code> · Total: <b>Agrupar por</b><br>
+          <b>Columna 2 —</b> Campo: <code>TotalVentas: [Total]</code> · Total: <b>Suma</b><br>
+          <b>Columna 3 —</b> Campo: <code>CantidadTransacciones: [ID_Venta]</code> · Total: <b>Cuenta</b><br>
+          <b>Columna 4 —</b> Campo: <code>OrdenMes: Format([Fecha];"aaaa/mm")</code> · Total: <b>Agrupar por</b> · Orden: <b>Ascendente</b> · <strong>Desmarcar</strong> la casilla <b>Mostrar</b>
+        </div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">4</div>
+        <div class="inst-text">Haz clic en <b>Ejecutar</b> (!). Debes ver este resultado:</div>
+      </div>
+      <div class="note" style="margin-top:0;">
+        <table class="result-table">
+          <thead><tr><th>MesAño</th><th>TotalVentas</th><th>CantidadTransacciones</th></tr></thead>
+          <tbody>
+            <tr><td>enero 2026</td><td class="r">45,400.00</td><td class="r">3</td></tr>
+            <tr><td>febrero 2026</td><td class="r">48,950.00</td><td class="r">7</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">5</div>
+        <div class="inst-text">Guarda con <b>Ctrl + S</b>. Nombre: <b>ConsultaVentasMensuales</b>.</div>
+      </div>
+      <div class="step-footer">
+        <button class="done-btn" onclick="markDone(1)">Marcar como completado</button>
+        <span class="done-lbl" id="dl1"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step" id="step2">
+    <div class="step-hdr" onclick="toggle(2)">
+      <div class="step-num">2</div>
+      <div class="step-hdr-text">
+        <div class="step-cat">Reporte</div>
+        <div class="step-ttl">Crear el reporte con el Asistente para informes</div>
+      </div>
+      <div class="step-arrow">▾</div>
+    </div>
+    <div class="step-body">
+      <div class="inst-block">
+        <div class="inst-num">1</div>
+        <div class="inst-text">Selecciona <b>ConsultaVentasMensuales</b> en el Panel de Navegación (un solo clic). Ve a <b>Crear → Asistente para informes</b>.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">2</div>
+        <div class="inst-text">Agrega estos campos en orden (doble clic sobre cada uno): <b>MesAño → TotalVentas → CantidadTransacciones</b>. No agregues OrdenMes. Clic en <b>Siguiente</b>.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">3</div>
+        <div class="inst-text">Pantallas siguientes: agrupamiento → <b>Siguiente</b> sin cambios · ordenación → campo <b>MesAño Ascendente</b> · diseño → <b>Tabular / Horizontal</b> · título → escribe <b>Ventas Mensuales</b> · selecciona <em>"Modificar el diseño"</em> → <b>Finalizar</b>.</div>
+      </div>
+      <div class="note">El reporte se abre en <b>Vista Diseño</b> con cinco franjas: Encabezado del informe, Encabezado de página, Detalle, Pie de página y Pie del informe. Déjalo abierto para el siguiente paso.</div>
+      <div class="step-footer">
+        <button class="done-btn" onclick="markDone(2)">Marcar como completado</button>
+        <span class="done-lbl" id="dl2"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="step" id="step3">
+    <div class="step-hdr" onclick="toggle(3)">
+      <div class="step-num">3</div>
+      <div class="step-hdr-text">
+        <div class="step-cat">Gráfico</div>
+        <div class="step-ttl">Insertar el gráfico en el reporte</div>
+      </div>
+      <div class="step-arrow">▾</div>
+    </div>
+    <div class="step-body">
+      <div class="inst-block">
+        <div class="inst-num">1</div>
+        <div class="inst-text">Arrastra el borde inferior de la franja <b>Encabezado del informe</b> hacia abajo hasta que tenga unos <b>10 cm de alto</b>.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">2</div>
+        <div class="inst-text">En la pestaña <b>Diseño de informe</b>, grupo <b>Controles</b>, haz clic en <b>Gráfico moderno</b> (ícono de barras con destello ⚡). Si no lo ves, expande el grupo con la flecha de la esquina inferior derecha.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">3</div>
+        <div class="inst-text">Dibuja el gráfico dentro del Encabezado del informe arrastrando el cursor. Tamaño sugerido: <b>16 cm × 9 cm</b>.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">4</div>
+        <div class="inst-text">Con el gráfico seleccionado, en la <b>Hoja de propiedades → pestaña Datos</b>, verifica que <b>Origen de la fila</b> dice <b>ConsultaVentasMensuales</b>. En la <b>pestaña Formato</b>, verifica que <b>Tipo de gráfico</b> dice <b>Columna agrupada</b>.</div>
+      </div>
+      <div class="warn"><strong>Si aparece un cuadro de "Enlace de campo maestro/secundario"</strong>, deja ambos campos en blanco y haz clic en Aceptar.</div>
+      <div class="step-footer">
+        <button class="done-btn" onclick="markDone(3)">Marcar como completado</button>
+        <span class="done-lbl" id="dl3"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="step" id="step4">
+    <div class="step-hdr" onclick="toggle(4)">
+      <div class="step-num">4</div>
+      <div class="step-hdr-text">
+        <div class="step-cat">Configuración del Gráfico</div>
+        <div class="step-ttl">Configurar título, ejes y leyenda desde la Hoja de propiedades</div>
+      </div>
+      <div class="step-arrow">▾</div>
+    </div>
+    <div class="step-body">
+      <div class="note">Haz clic <b>una sola vez</b> sobre el gráfico. Toda la configuración se hace en la <b>Hoja de propiedades → pestaña Formato</b> (presiona <b>F4</b> si no está visible). Busca cada fila en la lista y escribe o selecciona el valor indicado:</div>
+      <div class="inst-block">
+        <div class="inst-num">1</div>
+        <div class="inst-text"><b>Tiene título</b> → <b>Sí</b> · <b>Título del gráfico</b> → <b>Ventas Mensuales</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">2</div>
+        <div class="inst-text"><b>Tiene los títulos de los ejes</b> → <b>Sí</b> · <b>Título del eje de categorías</b> → <b>Meses del Año</b> · <b>Título de eje de valores principal</b> → <b>Total de Ventas (RD$)</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">3</div>
+        <div class="inst-text"><b>Tiene leyenda</b> → <b>Sí</b> · <b>Posición de la leyenda</b> → <b>Inferior</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">4</div>
+        <div class="inst-text"><b>Mínimo del eje de valores principal</b> → <b>0</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">5</div>
+        <div class="inst-text">Guarda con <b>Ctrl + S</b> y verifica en <b>Vista preliminar</b>.</div>
+      </div>
+      <div class="step-footer">
+        <button class="done-btn" onclick="markDone(4)">Marcar como completado</button>
+        <span class="done-lbl" id="dl4"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 5 -->
+  <div class="step" id="step5">
+    <div class="step-hdr" onclick="toggle(5)">
+      <div class="step-num">5</div>
+      <div class="step-hdr-text">
+        <div class="step-cat">Diseño Visual</div>
+        <div class="step-ttl">Personalizar colores y fuentes del gráfico</div>
+      </div>
+      <div class="step-arrow">▾</div>
+    </div>
+    <div class="step-body">
+      <div class="note">Haz clic <b>una sola vez</b> sobre el gráfico. En la <b>Hoja de propiedades → pestaña Formato</b> configura lo siguiente:</div>
+      <div class="inst-block">
+        <div class="inst-num">1</div>
+        <div class="inst-text"><b>Estilo del fondo</b> → <b>Normal</b> · <b>Color del fondo</b> → <b>Blanco</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">2</div>
+        <div class="inst-text"><b>Tamaño de fuente del texto del título</b> → <b>14</b> · <b>Tamaño de fuente del texto de los ejes</b> → <b>10</b></div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">3</div>
+        <div class="inst-text">Para cambiar el color de las barras: haz <b>doble clic</b> sobre el gráfico → clic sobre una barra (se seleccionan todas) → en la cinta pestaña <b>Formato → Relleno de forma → Más colores…</b> → pestaña <b>Personalizado</b> → Hex: <b>C0152A</b> → <b>Aceptar</b>. Clic fuera del gráfico para salir.</div>
+      </div>
+      <div class="inst-block">
+        <div class="inst-num">4</div>
+        <div class="inst-text">Guarda con <b>Ctrl + S</b>.</div>
+      </div>
+      <div class="step-footer">
+        <button class="done-btn" onclick="markDone(5)">Marcar como completado</button>
+        <span class="done-lbl" id="dl5"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESCARGA PDF -->
+  <div class="dl-section">
+    <h3>📄 Descargar Evidencia en PDF</h3>
+    <p>Cuando hayas completado todos los pasos, descarga la actividad como evidencia.</p>
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="n" id="cntSteps">0</span>
+        <span class="lbl">de 5 pasos completados</span>
+      </div>
+    </div>
+    <button id="dlBtn" onclick="doDownload()">Descargar PDF — Evidencia de Actividad</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+const N = 5;
+const done = new Set();
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fechaAct').valueAsDate = new Date();
+  document.getElementById('step1').classList.add('open');
+  buildNav();
+});
+
+function toggle(n) {
+  const el = document.getElementById('step' + n);
+  el.classList.toggle('open');
+}
+
+function markDone(n) {
+  done.add(n);
+  const el = document.getElementById('step' + n);
+  el.classList.add('completed');
+  const btn = el.querySelector('.done-btn');
+  btn.textContent = '✓ Completado';
+  btn.classList.add('done');
+  document.getElementById('dl' + n).textContent = 'Paso ' + n + ' completado ✓';
+  document.getElementById('progBar').style.width = (done.size / N * 100) + '%';
+  document.getElementById('cntSteps').textContent = done.size;
+  updateNav();
+  if (n < N) {
+    const nxt = document.getElementById('step' + (n + 1));
+    if (nxt && !nxt.classList.contains('open')) {
+      nxt.classList.add('open');
+      setTimeout(() => nxt.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    }
+  }
+}
+
+function buildNav() {
+  const nav = document.getElementById('stepsNav');
+  for (let i = 1; i <= N; i++) {
+    const d = document.createElement('div');
+    d.className = 'ndot'; d.id = 'nd' + i; d.title = 'Paso ' + i;
+    d.onclick = () => document.getElementById('step' + i).scrollIntoView({ behavior: 'smooth' });
+    nav.appendChild(d);
+  }
+  updateNav();
+}
+
+function updateNav() {
+  for (let i = 1; i <= N; i++) {
+    const d = document.getElementById('nd' + i);
+    if (!d) continue;
+    d.className = 'ndot';
+    if (done.has(i)) d.classList.add('done');
+  }
+}
+
+window.addEventListener('scroll', () => {
+  let cur = 1;
+  for (let i = 1; i <= N; i++) {
+    const el = document.getElementById('step' + i);
+    if (el && el.getBoundingClientRect().top < 220) cur = i;
+  }
+  for (let i = 1; i <= N; i++) {
+    const d = document.getElementById('nd' + i);
+    if (d && !done.has(i)) {
+      d.classList.remove('active');
+      if (i === cur) d.classList.add('active');
+    }
+  }
+});
+
+function doDownload() {
+  const nombre = document.getElementById('nomEst').value.trim();
+  if (!nombre) {
+    alert('Por favor escribe tu nombre antes de descargar.');
+    document.getElementById('nomEst').focus();
+    return;
+  }
+  for (let i = 1; i <= N; i++) document.getElementById('step' + i).classList.add('open');
+  const orig = document.title;
+  const fecha = document.getElementById('fechaAct').value || new Date().toISOString().slice(0, 10);
+  document.title = 'Act6.2.9_' + nombre.replace(/\s+/g, '_') + '_' + fecha;
+  setTimeout(() => { window.print(); document.title = orig; }, 400);
+}
+</script>
+</body>
+</html>
